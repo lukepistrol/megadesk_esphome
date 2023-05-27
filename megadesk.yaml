@@ -142,3 +142,7 @@ interval:
   - interval: 300s
     then:
       - uart.write: "<C0.0."
+      - delay: 1s
+      - uart.write: "<R.17."
+      - delay: 1s
+      - uart.write: "<R.18."
