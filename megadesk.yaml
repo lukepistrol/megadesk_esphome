@@ -81,9 +81,9 @@ binary_sensor:
     device_class: sound
     lambda: |-
       if (id(megadesk_audio_enabled_raw).state == 0) {
-        return false
+        return false;
       }
-      return true
+      return true;
 
 number:
   - platform: template
@@ -126,6 +126,7 @@ button:
     on_press:
       then:
         - uart.write: "<L,17."
+        - uart.write: "<R.17."
   - platform: template
     name: "Reboot"
     on_press:
