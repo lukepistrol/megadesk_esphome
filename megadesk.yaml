@@ -13,9 +13,11 @@ esphome:
       - delay: 1s
       - uart.write: "<R0.12."
       - delay: 1s
+      - uart.write: "<T2000,64."
+      - delay: 1s
       - uart.write: "<T3000,64."
-      - delay: 2s
-      - uart.write: "<T2000,128."
+      - delay: 1s
+      - uart.write: "<T4000,128."
 
 esp8266:
   board: d1_mini
@@ -66,10 +68,13 @@ sensor:
           then:
             - component.update: megadesk_height_cm
             - component.update: megadesk_height_raw
+            - component.update: megadesk_position_state
       - name: "Megadesk Minimum Height"
         id: megadesk_min_height
+        icon: "mdi:border-bottom"
       - name: "Megadesk Maximum Height"
         id: megadesk_max_height
+        icon: "mdi:border-top"
       - name: "Megadesk Audio Enabled (raw)"
         id: megadesk_audio_enabled_raw
         internal: true
@@ -89,6 +94,7 @@ binary_sensor:
   - platform: template
     name: "Megadesk Audio Enabled"
     id: megadesk_audio_enabled
+    icon: "mdi:music-note"
     device_class: power
     lambda: |-
       if (id(megadesk_audio_enabled_raw).state == 0) {
@@ -98,12 +104,27 @@ binary_sensor:
   - platform: template
     name: "Megadesk 2 Button Enabled"
     id: megadesk_two_button_enabled
+    icon: "mdi:gesture-tap-button"
     device_class: power
     lambda: |-
       if (id(megadesk_two_button_enabled_raw).state == 0) {
         return false;
       }
       return true;
+
+text_sensor:
+  - platform: template
+    name: "Position"
+    id: megadesk_position_state
+    icon: "mdi:table-chair"
+    lambda: |-
+      if (id(megadesk_height_cm).state <= 90.0) {
+        if (id(megadesk_height_cm).state <= 75.0) {
+          return {"Sitting"};
+        }
+        return {"Relaxed"};
+      }
+      return {"Standing"};
 
 number:
   - platform: template
@@ -115,6 +136,7 @@ number:
     mode: slider
     update_interval: never
     unit_of_measurement: 'cm'
+    icon: "mdi:ruler"
     lambda: |-
       return ((((id(megadesk_raw).state - 300) * (122.0 - 65.8)) / (6012 - 300)) + 65.8);
     set_action:
@@ -143,6 +165,7 @@ number:
 switch:
   - platform: template
     name: "Enable Sounds"
+    icon: "mdi:music-note"
     lambda: |-
       if (id(megadesk_audio_enabled).state) {
         return true;
@@ -156,6 +179,7 @@ switch:
       - uart.write: "<R.17."
   - platform: template
     name: "Enable 2 Button Mode"
+    icon: "mdi:gesture-tap-button"
     lambda: |-
       if (id(megadesk_two_button_enabled).state) {
         return true;
@@ -171,26 +195,37 @@ switch:
 button:
   - platform: template
     name: "Reboot"
+    icon: "mdi:restart"
     on_press:
       then:
         - uart.write: "<L,15."
   - platform: template
     name: "Sitting"
+    icon: "mdi:seat-recline-normal"
     on_press: 
       then:
         - uart.write: "<l,2."
   - platform: template
     name: "Standing"
+    icon: "mdi:human-handsup"
     on_press: 
       then:
         - uart.write: "<L,2."
   - platform: template
+    name: "Relaxed"
+    icon: "mdi:seat-recline-extra"
+    on_press: 
+      then:
+        - uart.write: "<L,3."
+  - platform: template
     name: "Move Up"
+    icon: "mdi:transfer-up"
     on_press: 
       then:
         - uart.write: "<+150.."
   - platform: template
     name: "Move Down"
+    icon: "mdi:transfer-down"
     on_press: 
       then:
         - uart.write: "<-150.."
@@ -199,11 +234,7 @@ interval:
   - interval: 30s
     then:
       - uart.write: "<C0.0."
-      - delay: 1s
       - uart.write: "<R.17."
-      - delay: 1s
       - uart.write: "<R.18."
-      - delay: 1s
       - uart.write: "<R.11."
-      - delay: 1s
       - uart.write: "<R.12."
