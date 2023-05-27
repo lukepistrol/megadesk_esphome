@@ -111,22 +111,22 @@ button:
     name: "Toggle Audio"
     on_press:
       then:
-        - uart.write: "<L0,17."
+        - uart.write: "<L,17."
   - platform: template
     name: "Reboot"
     on_press:
       then:
-        - uart.write: "<L0,15."
+        - uart.write: "<L,15."
   - platform: template
     name: "Sitting"
     on_press: 
       then:
-        - uart.write: "<l0,2."
+        - uart.write: "<l,2."
   - platform: template
     name: "Standing"
     on_press: 
       then:
-        - uart.write: "<L0,2."
+        - uart.write: "<L,2."
   - platform: template
     name: "Move Up"
     on_press: 
