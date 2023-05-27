@@ -83,7 +83,7 @@ binary_sensor:
     id: megadesk_audio_enabled
     device_class: sound
     lambda: |-
-      if (id(megadesk_audio_enabled_raw == 0) {
+      if (id(megadesk_audio_enabled_raw).state == 0) {
         return false
       }
       return true
