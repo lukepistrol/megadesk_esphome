@@ -57,7 +57,7 @@ sensor:
     lambda: |-
       auto megadesk = new Megadesk(id(uart_desk));
       App.register_component(megadesk);
-      return { megadesk->raw_height, megadesk->min_height, megadesk->max_height, megadesk->audio };
+      return { megadesk->raw_height, megadesk->min_height, megadesk->max_height, megadesk->audio, megadesk->two_button };
     sensors:
       - id: megadesk_raw
         name: "Megadesk Raw"
@@ -73,14 +73,26 @@ sensor:
       - name: "Megadesk Audio Enabled (raw)"
         id: megadesk_audio_enabled_raw
         internal: true
+      - name: "Megadesk 2 Button Enabled (raw)"
+        id: megadesk_two_button_enabled_raw
+        internal: true
 
 binary_sensor:
   - platform: template
     name: "Megadesk Audio Enabled"
     id: megadesk_audio_enabled
-    device_class: sound
+    device_class: power
     lambda: |-
       if (id(megadesk_audio_enabled_raw).state == 0) {
+        return false;
+      }
+      return true;
+  - platform: template
+    name: "Megadesk 2 Button Enabled"
+    id: megadesk_two_button_enabled
+    device_class: power
+    lambda: |-
+      if (id(megadesk_two_button_enabled_raw).state == 0) {
         return false;
       }
       return true;
@@ -120,13 +132,35 @@ number:
           std::string s = buf;
           return std::vector<unsigned char>( s.begin(), s.end() );
 
-button:
+switch:
   - platform: template
-    name: "Toggle Audio"
-    on_press:
-      then:
-        - uart.write: "<L,17."
-        - uart.write: "<R.17."
+    name: "Enable Sounds"
+    lambda: |-
+      if (id(megadesk_audio_enabled).state) {
+        return true;
+      }
+      return false;
+    turn_on_action:
+      - uart.write: "<L,17."
+      - uart.write: "<R.17."
+    turn_off_action:
+      - uart.write: "<L,17."
+      - uart.write: "<R.17."
+  - platform: template
+    name: "Enable 2 Button Mode"
+    lambda: |-
+      if (id(megadesk_two_button_enabled).state) {
+        return true;
+      }
+      return false;
+    turn_on_action:
+      - uart.write: "<L,18."
+      - uart.write: "<R.18."
+    turn_off_action:
+      - uart.write: "<L,18."
+      - uart.write: "<R.18."
+
+button:
   - platform: template
     name: "Reboot"
     on_press:

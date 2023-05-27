@@ -8,6 +8,7 @@ public:
     Sensor *min_height = new Sensor();
     Sensor *max_height = new Sensor();
     Sensor *audio = new Sensor();
+    Sensor *two_button = new Sensor();
  
     void setup() override {}
 
@@ -78,6 +79,9 @@ public:
             } else if (push_addr == 17) {
                 ESP_LOGI("custom", "[audio]: %c %c %d %d", control, command, position, push_addr);
                 audio->publish_state(position);
+            } else if (push_addr == 18) {
+                ESP_LOGI("custom", "[two-button]: %c %c %d %d", control, command, position, push_addr);
+                two_button->publish_state(position);
             } else {
                 ESP_LOGI("custom", "[other]: %c %c %d %d", control, command, position, push_addr);
             }
