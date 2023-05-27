@@ -146,3 +146,7 @@ interval:
       - uart.write: "<R.17."
       - delay: 1s
       - uart.write: "<R.18."
+      - delay: 1s
+      - uart.write: "<R.11."
+      - delay: 1s
+      - uart.write: "<R.12."
