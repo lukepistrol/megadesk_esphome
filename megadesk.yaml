@@ -73,9 +73,6 @@ sensor:
       - name: "Megadesk Audio Enabled (raw)"
         id: megadesk_audio_enabled_raw
         internal: true
-        on_value:
-          then:
-            - component.update: megadesk_audio_enabled
 
 binary_sensor:
   - platform: template
