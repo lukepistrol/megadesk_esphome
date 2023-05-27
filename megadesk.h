@@ -7,6 +7,7 @@ public:
     Sensor *raw_height = new Sensor();
     Sensor *min_height = new Sensor();
     Sensor *max_height = new Sensor();
+    Sensor *audio = new Sensor();
  
     void setup() override {}
 
@@ -65,19 +66,20 @@ public:
             return;
         }
         if (command == '=') {
-            ESP_LOGD("custom", "[raw-height]: %c %c %d %d", control, command, position, push_addr);
+            ESP_LOGI("custom", "[raw-height]: %c %c %d %d", control, command, position, push_addr);
             raw_height->publish_state(position);
         } else if (command == 'R') {
             if (push_addr == 11) {
-                ESP_LOGD("custom", "[min-height]: %c %c %d %d", control, command, position, push_addr);
+                ESP_LOGI("custom", "[min-height]: %c %c %d %d", control, command, position, push_addr);
                 min_height->publish_state(position);
             } else if (push_addr == 12) {
-                ESP_LOGD("custom", "[max-height]: %c %c %d %d", control, command, position, push_addr);
+                ESP_LOGI("custom", "[max-height]: %c %c %d %d", control, command, position, push_addr);
                 max_height->publish_state(position);
             } else if (push_addr == 17) {
-                ESP_LOGD("custom", "[audio]: %c %c %d %d", control, command, position, push_addr);
+                ESP_LOGI("custom", "[audio]: %c %c %d %d", control, command, position, push_addr);
+                audio->publish_state(position);
             } else {
-                ESP_LOGE("custom", "[other]: %c %c %d %d", control, command, position, push_addr);
+                ESP_LOGI("custom", "[other]: %c %c %d %d", control, command, position, push_addr);
             }
         } else if (command == 'E') {
             ESP_LOGE("custom", "%c %c %d %d", control, command, position, push_addr);

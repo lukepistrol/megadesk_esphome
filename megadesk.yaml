@@ -57,7 +57,7 @@ sensor:
     lambda: |-
       auto megadesk = new Megadesk(id(uart_desk));
       App.register_component(megadesk);
-      return { megadesk->raw_height, megadesk->min_height, megadesk->max_height };
+      return { megadesk->raw_height, megadesk->min_height, megadesk->max_height, megadesk->audio };
     sensors:
       - id: megadesk_raw
         name: "Megadesk Raw"
@@ -70,6 +70,23 @@ sensor:
         id: megadesk_min_height
       - name: "Megadesk Maximum Height"
         id: megadesk_max_height
+      - name: "Megadesk Audio Enabled (raw)"
+        id: megadesk_audio_enabled_raw
+        internal: true
+        on_value:
+          then:
+            - component.update: megadesk_audio_enabled
+
+binary_sensor:
+  - platform: template
+    name: "Megadesk Audio Enabled"
+    id: megadesk_audio_enabled
+    device_class: sound
+    lambda: |-
+      if (id(megadesk_audio_enabled_raw == 0) {
+        return false
+      }
+      return true
 
 number:
   - platform: template
@@ -139,7 +156,7 @@ button:
         - uart.write: "<-150.."
 
 interval:
-  - interval: 300s
+  - interval: 30s
     then:
       - uart.write: "<C0.0."
       - delay: 1s
