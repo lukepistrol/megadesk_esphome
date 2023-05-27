@@ -76,6 +76,14 @@ sensor:
       - name: "Megadesk 2 Button Enabled (raw)"
         id: megadesk_two_button_enabled_raw
         internal: true
+  - platform: uptime
+    name: Uptime
+    update_interval: 30s
+    entity_category: "diagnostic"
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 30s
+    entity_category: "diagnostic"
 
 binary_sensor:
   - platform: template
