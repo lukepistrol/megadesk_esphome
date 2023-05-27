@@ -12,8 +12,7 @@ public:
 
     int digits=0;
 
-    int readdigits()
-    {
+    int readdigits() {
         int r;
         while ((r = read()) > 0) {
             if ((r < 0x30) || (r > 0x39)) {
@@ -27,8 +26,7 @@ public:
         return -1;
     }
 
-    void recvData()
-    {
+    void recvData() {
         const int numChars = 2;
         const int numFields = 4; // read/store all 4 fields for simplicity, use only the last 3.
         // static variables allows segmented/char-at-a-time decodes
@@ -37,10 +35,8 @@ public:
         int r; // read char/digit
 
         // read 2 chars
-        while ((ndx < numChars) && ((r = read()) != -1))
-        {
-            if ((ndx == 0) && (r != '>'))
-            {
+        while ((ndx < numChars) && ((r = read()) != -1)) {
+            if ((ndx == 0) && ((r != '>') && (r != 'E') && (r != 'D') && (r != '!'))) {
                 // first char is not Tx, keep reading...
                 continue;
             }
@@ -53,7 +49,8 @@ public:
             digits = 0; // clear
             if (++ndx == numFields) {
                 // thats all 4 fields. parse/process them now and break-out.
-                parseData(receivedBytes[1],
+                parseData(receivedBytes[0],
+                          receivedBytes[1],
                           receivedBytes[2],
                           receivedBytes[3]);
                 ndx = 0;
@@ -62,8 +59,11 @@ public:
         }
     }
 
-    void parseData(byte command, uint16_t position, uint8_t push_addr)
-    {
+    void parseData(byte control, byte command, uint16_t position, uint8_t push_addr) {
+        if (control != '>') {
+            ESP_LOGD("custom", "error %c %c %d %d", control, command, position, push_addr);
+            return;
+        }
         if (command == '=') {
             raw_height->publish_state(position);
         } else if (command == 'R') {
@@ -74,7 +74,7 @@ public:
             } else if (push_addr == 17) {
                 ESP_LOGD("custom", "audio %d", position);
             }
-        } else {
+        } else if (command == 'E') {
             ESP_LOGD("custom", "error %c %d %d", command, position, push_addr);
         }
     }
