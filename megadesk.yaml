@@ -29,10 +29,10 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "QqlM/FhHgLmy+P7csJXk/Uq3QNnmXQSlqJJ4Z9kdhf8="
+    key: !secret api_encryption_key
 
 ota:
-  password: "47642f7c2efa778c1cb60336c772f97a"
+  password: !secret ota_password
 
 wifi:
   ssid: !secret wifi_ssid
@@ -138,7 +138,7 @@ number:
     unit_of_measurement: 'cm'
     icon: "mdi:ruler"
     lambda: |-
-      return ((((id(megadesk_raw).state - 300) * (122.0 - 65.8)) / (6012 - 300)) + 65.8);
+      return float(int(((((id(megadesk_raw).state - 300) * (122.0 - 65.8)) / (6012 - 300)) + 65.8) * 10.0)) / 10.0;
     set_action:
       - number.set: 
           id: megadesk_height_raw
