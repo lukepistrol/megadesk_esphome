@@ -1,6 +1,6 @@
 esphome:
   name: megadesk
-  friendly_name: megadesk
+  friendly_name: Megadesk
   includes:
     - megadesk.h
   on_boot: 
@@ -69,16 +69,16 @@ sensor:
             - component.update: megadesk_height_cm
             - component.update: megadesk_height_raw
             - component.update: megadesk_position_state
-      - name: "Megadesk Minimum Height"
+      - name: "Minimum Height"
         id: megadesk_min_height
         icon: "mdi:border-bottom"
-      - name: "Megadesk Maximum Height"
+      - name: "Maximum Height"
         id: megadesk_max_height
         icon: "mdi:border-top"
-      - name: "Megadesk Audio Enabled (raw)"
+      - name: "Audio Enabled (raw)"
         id: megadesk_audio_enabled_raw
         internal: true
-      - name: "Megadesk 2 Button Enabled (raw)"
+      - name: "2 Button Enabled (raw)"
         id: megadesk_two_button_enabled_raw
         internal: true
   - platform: uptime
@@ -92,7 +92,7 @@ sensor:
 
 binary_sensor:
   - platform: template
-    name: "Megadesk Audio Enabled"
+    name: "Audio Enabled"
     id: megadesk_audio_enabled
     icon: "mdi:music-note"
     device_class: power
@@ -102,7 +102,7 @@ binary_sensor:
       }
       return true;
   - platform: template
-    name: "Megadesk 2 Button Enabled"
+    name: "2 Button Mode Enabled"
     id: megadesk_two_button_enabled
     icon: "mdi:gesture-tap-button"
     device_class: power
@@ -128,7 +128,7 @@ text_sensor:
 
 number:
   - platform: template
-    name: "Megadesk Height (cm)"
+    name: "Height (cm)"
     id: megadesk_height_cm
     min_value: 65.8
     max_value: 122.0
@@ -172,9 +172,11 @@ switch:
       }
       return false;
     turn_on_action:
+      - uart.write: "<R.17."
       - uart.write: "<L,17."
       - uart.write: "<R.17."
     turn_off_action:
+      - uart.write: "<R.17."
       - uart.write: "<L,17."
       - uart.write: "<R.17."
   - platform: template
@@ -186,9 +188,11 @@ switch:
       }
       return false;
     turn_on_action:
+      - uart.write: "<R.18."
       - uart.write: "<L,18."
       - uart.write: "<R.18."
     turn_off_action:
+      - uart.write: "<R.18."
       - uart.write: "<L,18."
       - uart.write: "<R.18."
 
@@ -198,36 +202,42 @@ button:
     icon: "mdi:restart"
     on_press:
       then:
+        - uart.write: "<C0.0."
         - uart.write: "<L,15."
   - platform: template
     name: "Sitting"
     icon: "mdi:seat-recline-normal"
     on_press: 
       then:
+        - uart.write: "<C0.0."
         - uart.write: "<l,2."
   - platform: template
     name: "Standing"
     icon: "mdi:human-handsup"
     on_press: 
       then:
+        - uart.write: "<C0.0."
         - uart.write: "<L,2."
   - platform: template
     name: "Relaxed"
     icon: "mdi:seat-recline-extra"
     on_press: 
       then:
+        - uart.write: "<C0.0."
         - uart.write: "<L,3."
   - platform: template
     name: "Move Up"
     icon: "mdi:transfer-up"
     on_press: 
       then:
+        - uart.write: "<C0.0."
         - uart.write: "<+150.."
   - platform: template
     name: "Move Down"
     icon: "mdi:transfer-down"
     on_press: 
       then:
+        - uart.write: "<C0.0."
         - uart.write: "<-150.."
 
 interval:
