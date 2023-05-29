@@ -14,9 +14,9 @@ esphome:
       - uart.write: "<R0.12."
       - delay: 1s
       - uart.write: "<T2000,64."
-      - delay: 1s
+      - delay: 0.4s
       - uart.write: "<T3000,64."
-      - delay: 1s
+      - delay: 0.4s
       - uart.write: "<T4000,128."
 
 esp8266:
