@@ -205,6 +205,13 @@ button:
         - uart.write: "<C0.0."
         - uart.write: "<L,15."
   - platform: template
+    name: "Calibrate"
+    icon: "mdi:restart"
+    on_press:
+      then:
+        - uart.write: "<C0.0."
+        - uart.write: "<L,14."
+  - platform: template
     name: "Sitting"
     icon: "mdi:seat-recline-normal"
     on_press: 
