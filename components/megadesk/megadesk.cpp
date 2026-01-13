@@ -1,4 +1,5 @@
 #include "megadesk.h"
+#include "number.h"
 #include "esphome/core/log.h"
 
 namespace esphome {
@@ -79,9 +80,20 @@ void MegadeskComponent::parse_data_(uint8_t control, uint8_t command, uint16_t p
 
   if (command == '=') {
     ESP_LOGD(TAG, "[raw-height]: %c %c %d %d", control, command, position, push_addr);
+    
+    // Update sensor
     if (this->raw_height_sensor_ != nullptr) {
       this->raw_height_sensor_->publish_state(position);
     }
+    
+    // Update number entities
+    if (this->height_number_ != nullptr) {
+      this->height_number_->update_from_raw(position);
+    }
+    if (this->height_raw_number_ != nullptr) {
+      this->height_raw_number_->update_from_raw(position);
+    }
+    
   } else if (command == 'R') {
     if (push_addr == 11) {
       ESP_LOGD(TAG, "[min-height]: %c %c %d %d", control, command, position, push_addr);

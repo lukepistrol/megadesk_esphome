@@ -72,8 +72,6 @@ sensor:
       internal: true
       on_value:
         then:
-          - component.update: megadesk_height_cm
-          - component.update: megadesk_height_raw
           - component.update: megadesk_position_state
     min_height:
       name: "Minimum Height"
@@ -99,6 +97,23 @@ sensor:
     name: "WiFi Signal"
     update_interval: 30s
     entity_category: "diagnostic"
+
+# Native number entities for height control - replaces template numbers!
+number:
+  - platform: megadesk
+    megadesk_id: megadesk_controller
+    height:
+      name: "Height"
+      id: megadesk_height_cm
+      # Calibration values - adjust these for your desk if needed
+      min_cm: 65.8
+      max_cm: 122.0
+      min_raw: 300
+      max_raw: 6012
+    height_raw:
+      name: "Height (raw)"
+      id: megadesk_height_raw
+      internal: true
 
 binary_sensor:
   - platform: template
@@ -137,42 +152,6 @@ text_sensor:
       }
       return {"Standing"};
 
-number:
-  - platform: template
-    name: "Height (cm)"
-    id: megadesk_height_cm
-    min_value: 65.8
-    max_value: 122.0
-    step: 0.1
-    mode: slider
-    update_interval: never
-    unit_of_measurement: 'cm'
-    icon: "mdi:ruler"
-    lambda: |-
-      return float(int(((((id(megadesk_raw).state - 300) * (122.0 - 65.8)) / (6012 - 300)) + 65.8) * 10.0)) / 10.0;
-    set_action:
-      - number.set: 
-          id: megadesk_height_raw
-          value: !lambda "return int((((x - 65.8) * (6012 - 300)) / (122.0 - 65.8)) + 300);"
-  
-  - platform: template
-    id: megadesk_height_raw
-    name: Megadesk Raw
-    min_value: 300
-    max_value: 6012
-    step: 1
-    internal: true
-    mode: slider
-    update_interval: never
-    lambda: |-
-      return id(megadesk_raw).state;
-    set_action:
-      - uart.write: !lambda |-
-          char buf[20];
-          sprintf(buf, "<=%i,.", int(x));
-          std::string s = buf;
-          return std::vector<unsigned char>( s.begin(), s.end() );
-
 switch:
   - platform: template
     name: "Enable Sounds"
@@ -208,7 +187,7 @@ switch:
       - uart.write: "<L,18."
       - uart.write: "<R.18."
 
-# Native Megadesk buttons - much cleaner than template buttons!
+# Native Megadesk buttons
 button:
   - platform: megadesk
     megadesk_id: megadesk_controller
