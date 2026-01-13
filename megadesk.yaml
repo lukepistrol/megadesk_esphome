@@ -22,9 +22,8 @@ esp8266:
 
 # Use the local external component
 external_components:
-  - source:
-      type: local
-      path: components
+  - source: github://lukepistrol/megadesk_esphome@master
+    components: [megadesk]
 
 # Enable logging
 logger:
@@ -42,6 +41,7 @@ ota:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  min_auth_mode: WPA2
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
