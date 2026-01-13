@@ -74,6 +74,11 @@ void MegadeskComponent::recv_data_() {
 
 void MegadeskComponent::parse_data_(uint8_t control, uint8_t command, uint16_t position, uint8_t push_addr) {
   if (control != '>') {
+    if (control == '!') {
+      if (command == 'E') {
+        ESP_LOGE(TAG, "Error response: %c %c %d %d", control, command, position, push_addr);
+      }
+    }
     ESP_LOGE(TAG, "Invalid control byte: %c %c %d %d", control, command, position, push_addr);
     return;
   }
