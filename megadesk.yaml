@@ -208,99 +208,34 @@ switch:
       - uart.write: "<L,18."
       - uart.write: "<R.18."
 
+# Native Megadesk buttons - much cleaner than template buttons!
 button:
-  - platform: template
-    name: "Reboot"
-    icon: "mdi:restart"
-    on_press:
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<L,15."
-
-  - platform: template
-    name: "Calibrate"
-    icon: "mdi:restart"
-    on_press:
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<L,14."
-
-  - platform: template
-    name: "Sitting"
-    icon: "mdi:seat-recline-normal"
-    on_press: 
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<l,2."
-  - platform: template
-    name: "Set Sitting Height"
-    icon: "mdi:seat-recline-normal"
-    on_press:
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<s,2."
-
-  - platform: template
-    name: "Standing"
-    icon: "mdi:human-handsup"
-    on_press: 
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<L,2."
-  - platform: template
-    name: "Set Standing Height"
-    icon: "mdi:human-handsup"
-    on_press:
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<S,2."
-
-  - platform: template
-    name: "Relaxed"
-    icon: "mdi:seat-recline-extra"
-    on_press: 
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<l,3."
-  - platform: template
-    name: "Set Relaxed Height"
-    icon: "mdi:seat-recline-extra"
-    on_press:
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<s,3."
-
-  - platform: template
-    name: "Move Up"
-    icon: "mdi:transfer-up"
-    on_press: 
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<+150.."
-
-  - platform: template
-    name: "Move Down"
-    icon: "mdi:transfer-down"
-    on_press: 
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<-150.."
-  
-  - platform: template
-    name: "Set Minimum Height"
-    icon: "mdi:arrow-collapse-down"
-    on_press:
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<L,11."
-
-  - platform: template
-    name: "Set Maximum Height"
-    icon: "mdi:arrow-collapse-up"
-    on_press:
-      then:
-        - uart.write: "<C0.0."
-        - uart.write: "<L,12."
+  - platform: megadesk
+    megadesk_id: megadesk_controller
+    sitting:
+      name: "Sitting"
+    standing:
+      name: "Standing"
+    relaxed:
+      name: "Relaxed"
+    move_up:
+      name: "Move Up"
+    move_down:
+      name: "Move Down"
+    reboot:
+      name: "Reboot"
+    calibrate:
+      name: "Calibrate"
+    set_sitting:
+      name: "Set Sitting Height"
+    set_standing:
+      name: "Set Standing Height"
+    set_relaxed:
+      name: "Set Relaxed Height"
+    set_min_height:
+      name: "Set Minimum Height"
+    set_max_height:
+      name: "Set Maximum Height"
 
 interval:
   - interval: 30s
