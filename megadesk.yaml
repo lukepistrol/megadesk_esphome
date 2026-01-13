@@ -1,8 +1,6 @@
 esphome:
   name: megadesk
   friendly_name: Megadesk
-  includes:
-    - megadesk.h
   on_boot: 
     priority: -100
     then:
@@ -22,6 +20,12 @@ esphome:
 esp8266:
   board: d1_mini
 
+# Use the local external component
+external_components:
+  - source:
+      type: local
+      path: components
+
 # Enable logging
 logger:
   baud_rate: 0
@@ -32,7 +36,8 @@ api:
     key: !secret api_encryption_key
 
 ota:
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
 wifi:
   ssid: !secret wifi_ssid
@@ -54,37 +59,42 @@ uart:
   tx_pin: D0
   rx_pin: D1
 
+megadesk:
+  id: megadesk_controller
+  uart_id: uart_desk
+
 sensor:
-  - platform: custom
-    lambda: |-
-      auto megadesk = new Megadesk(id(uart_desk));
-      App.register_component(megadesk);
-      return { megadesk->raw_height, megadesk->min_height, megadesk->max_height, megadesk->audio, megadesk->two_button };
-    sensors:
-      - id: megadesk_raw
-        name: "Megadesk Raw"
-        internal: true
-        on_value:
-          then:
-            - component.update: megadesk_height_cm
-            - component.update: megadesk_height_raw
-            - component.update: megadesk_position_state
-      - name: "Minimum Height"
-        id: megadesk_min_height
-        icon: "mdi:border-bottom"
-      - name: "Maximum Height"
-        id: megadesk_max_height
-        icon: "mdi:border-top"
-      - name: "Audio Enabled (raw)"
-        id: megadesk_audio_enabled_raw
-        internal: true
-      - name: "2 Button Enabled (raw)"
-        id: megadesk_two_button_enabled_raw
-        internal: true
+  - platform: megadesk
+    megadesk_id: megadesk_controller
+    raw_height:
+      id: megadesk_raw
+      name: "Megadesk Raw"
+      internal: true
+      on_value:
+        then:
+          - component.update: megadesk_height_cm
+          - component.update: megadesk_height_raw
+          - component.update: megadesk_position_state
+    min_height:
+      name: "Minimum Height"
+      id: megadesk_min_height
+    max_height:
+      name: "Maximum Height"
+      id: megadesk_max_height
+    audio_enabled:
+      name: "Audio Enabled (raw)"
+      id: megadesk_audio_enabled_raw
+      internal: true
+    two_button_mode:
+      name: "2 Button Enabled (raw)"
+      id: megadesk_two_button_enabled_raw
+      internal: true
+
   - platform: uptime
     name: Uptime
     update_interval: 30s
     entity_category: "diagnostic"
+
   - platform: wifi_signal
     name: "WiFi Signal"
     update_interval: 30s
@@ -101,6 +111,7 @@ binary_sensor:
         return false;
       }
       return true;
+
   - platform: template
     name: "2 Button Mode Enabled"
     id: megadesk_two_button_enabled
@@ -119,7 +130,7 @@ text_sensor:
     icon: "mdi:table-chair"
     lambda: |-
       if (id(megadesk_height_cm).state <= 90.0) {
-        if (id(megadesk_height_cm).state <= 75.0) {
+        if (id(megadesk_height_cm).state <= 72.5) {
           return {"Sitting"};
         }
         return {"Relaxed"};
@@ -179,6 +190,7 @@ switch:
       - uart.write: "<R.17."
       - uart.write: "<L,17."
       - uart.write: "<R.17."
+
   - platform: template
     name: "Enable 2 Button Mode"
     icon: "mdi:gesture-tap-button"
@@ -204,6 +216,7 @@ button:
       then:
         - uart.write: "<C0.0."
         - uart.write: "<L,15."
+
   - platform: template
     name: "Calibrate"
     icon: "mdi:restart"
@@ -211,6 +224,7 @@ button:
       then:
         - uart.write: "<C0.0."
         - uart.write: "<L,14."
+
   - platform: template
     name: "Sitting"
     icon: "mdi:seat-recline-normal"
@@ -219,6 +233,14 @@ button:
         - uart.write: "<C0.0."
         - uart.write: "<l,2."
   - platform: template
+    name: "Set Sitting Height"
+    icon: "mdi:seat-recline-normal"
+    on_press:
+      then:
+        - uart.write: "<C0.0."
+        - uart.write: "<s,2."
+
+  - platform: template
     name: "Standing"
     icon: "mdi:human-handsup"
     on_press: 
@@ -226,12 +248,28 @@ button:
         - uart.write: "<C0.0."
         - uart.write: "<L,2."
   - platform: template
+    name: "Set Standing Height"
+    icon: "mdi:human-handsup"
+    on_press:
+      then:
+        - uart.write: "<C0.0."
+        - uart.write: "<S,2."
+
+  - platform: template
     name: "Relaxed"
     icon: "mdi:seat-recline-extra"
     on_press: 
       then:
         - uart.write: "<C0.0."
-        - uart.write: "<L,3."
+        - uart.write: "<l,3."
+  - platform: template
+    name: "Set Relaxed Height"
+    icon: "mdi:seat-recline-extra"
+    on_press:
+      then:
+        - uart.write: "<C0.0."
+        - uart.write: "<s,3."
+
   - platform: template
     name: "Move Up"
     icon: "mdi:transfer-up"
@@ -239,6 +277,7 @@ button:
       then:
         - uart.write: "<C0.0."
         - uart.write: "<+150.."
+
   - platform: template
     name: "Move Down"
     icon: "mdi:transfer-down"
@@ -246,6 +285,22 @@ button:
       then:
         - uart.write: "<C0.0."
         - uart.write: "<-150.."
+  
+  - platform: template
+    name: "Set Minimum Height"
+    icon: "mdi:arrow-collapse-down"
+    on_press:
+      then:
+        - uart.write: "<C0.0."
+        - uart.write: "<L,11."
+
+  - platform: template
+    name: "Set Maximum Height"
+    icon: "mdi:arrow-collapse-up"
+    on_press:
+      then:
+        - uart.write: "<C0.0."
+        - uart.write: "<L,12."
 
 interval:
   - interval: 30s
