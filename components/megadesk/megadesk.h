@@ -7,9 +7,11 @@
 namespace esphome {
 namespace megadesk {
 
-// Forward declarations for number entities
+// Forward declarations
 class MegadeskHeightNumber;
 class MegadeskHeightRawNumber;
+class AudioSwitch;
+class TwoButtonSwitch;
 
 class MegadeskComponent : public Component, public uart::UARTDevice {
  public:
@@ -29,6 +31,10 @@ class MegadeskComponent : public Component, public uart::UARTDevice {
   void set_height_number(MegadeskHeightNumber *number) { height_number_ = number; }
   void set_height_raw_number(MegadeskHeightRawNumber *number) { height_raw_number_ = number; }
 
+  // Switch setters
+  void set_audio_switch(AudioSwitch *sw) { audio_switch_ = sw; }
+  void set_two_button_switch(TwoButtonSwitch *sw) { two_button_switch_ = sw; }
+
  protected:
   int read_digits_();
   void recv_data_();
@@ -44,6 +50,10 @@ class MegadeskComponent : public Component, public uart::UARTDevice {
   // Numbers
   MegadeskHeightNumber *height_number_{nullptr};
   MegadeskHeightRawNumber *height_raw_number_{nullptr};
+
+  // Switches
+  AudioSwitch *audio_switch_{nullptr};
+  TwoButtonSwitch *two_button_switch_{nullptr};
 
   // Receive state
   int digits_{0};

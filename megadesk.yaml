@@ -20,16 +20,13 @@ esphome:
 esp8266:
   board: d1_mini
 
-# Use the local external component
 external_components:
   - source: github://lukepistrol/megadesk_esphome@master
     components: [megadesk]
 
-# Enable logging
 logger:
   baud_rate: 0
 
-# Enable Home Assistant API
 api:
   encryption:
     key: !secret api_encryption_key
@@ -42,8 +39,6 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   min_auth_mode: WPA2
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Megadesk Fallback Hotspot"
     password: "nWMK1hYEtYzE"
@@ -75,18 +70,8 @@ sensor:
           - component.update: megadesk_position_state
     min_height:
       name: "Minimum Height"
-      id: megadesk_min_height
     max_height:
       name: "Maximum Height"
-      id: megadesk_max_height
-    audio_enabled:
-      name: "Audio Enabled (raw)"
-      id: megadesk_audio_enabled_raw
-      internal: true
-    two_button_mode:
-      name: "2 Button Enabled (raw)"
-      id: megadesk_two_button_enabled_raw
-      internal: true
 
   - platform: uptime
     name: Uptime
@@ -98,96 +83,24 @@ sensor:
     update_interval: 30s
     entity_category: "diagnostic"
 
-# Native number entities for height control - replaces template numbers!
 number:
   - platform: megadesk
     megadesk_id: megadesk_controller
     height:
       name: "Height"
       id: megadesk_height_cm
-      # Calibration values - adjust these for your desk if needed
-      min_cm: 65.8
-      max_cm: 122.0
-      min_raw: 300
-      max_raw: 6012
     height_raw:
       name: "Height (raw)"
-      id: megadesk_height_raw
       internal: true
 
-binary_sensor:
-  - platform: template
-    name: "Audio Enabled"
-    id: megadesk_audio_enabled
-    icon: "mdi:music-note"
-    device_class: power
-    lambda: |-
-      if (id(megadesk_audio_enabled_raw).state == 0) {
-        return false;
-      }
-      return true;
-
-  - platform: template
-    name: "2 Button Mode Enabled"
-    id: megadesk_two_button_enabled
-    icon: "mdi:gesture-tap-button"
-    device_class: power
-    lambda: |-
-      if (id(megadesk_two_button_enabled_raw).state == 0) {
-        return false;
-      }
-      return true;
-
-text_sensor:
-  - platform: template
-    name: "Position"
-    id: megadesk_position_state
-    icon: "mdi:table-chair"
-    lambda: |-
-      if (id(megadesk_height_cm).state <= 90.0) {
-        if (id(megadesk_height_cm).state <= 72.5) {
-          return {"Sitting"};
-        }
-        return {"Relaxed"};
-      }
-      return {"Standing"};
-
 switch:
-  - platform: template
-    name: "Enable Sounds"
-    icon: "mdi:music-note"
-    lambda: |-
-      if (id(megadesk_audio_enabled).state) {
-        return true;
-      }
-      return false;
-    turn_on_action:
-      - uart.write: "<R.17."
-      - uart.write: "<L,17."
-      - uart.write: "<R.17."
-    turn_off_action:
-      - uart.write: "<R.17."
-      - uart.write: "<L,17."
-      - uart.write: "<R.17."
+  - platform: megadesk
+    megadesk_id: megadesk_controller
+    audio:
+      name: "Enable Sounds"
+    two_button:
+      name: "Enable 2 Button Mode"
 
-  - platform: template
-    name: "Enable 2 Button Mode"
-    icon: "mdi:gesture-tap-button"
-    lambda: |-
-      if (id(megadesk_two_button_enabled).state) {
-        return true;
-      }
-      return false;
-    turn_on_action:
-      - uart.write: "<R.18."
-      - uart.write: "<L,18."
-      - uart.write: "<R.18."
-    turn_off_action:
-      - uart.write: "<R.18."
-      - uart.write: "<L,18."
-      - uart.write: "<R.18."
-
-# Native Megadesk buttons
 button:
   - platform: megadesk
     megadesk_id: megadesk_controller
@@ -215,6 +128,20 @@ button:
       name: "Set Minimum Height"
     set_max_height:
       name: "Set Maximum Height"
+
+text_sensor:
+  - platform: template
+    name: "Position"
+    id: megadesk_position_state
+    icon: "mdi:table-chair"
+    lambda: |-
+      if (id(megadesk_height_cm).state <= 90.0) {
+        if (id(megadesk_height_cm).state <= 72.5) {
+          return {"Sitting"};
+        }
+        return {"Relaxed"};
+      }
+      return {"Standing"};
 
 interval:
   - interval: 30s
